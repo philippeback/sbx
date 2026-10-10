@@ -19,10 +19,18 @@ uv add google-cloud-storage
 This enables Python scripts to upload, download, and inspect objects in GCS without needing any external CLI tools.
 
 ### B. Google Cloud CLI (`gcloud`)
-To install the `gcloud` command-line utility on Windows via winget:
+You can install the `gcloud` CLI on Windows using either **Scoop** or **winget**:
+
+#### Option 1: Via Scoop (Recommended for user-space package management)
+```powershell
+scoop install gcloud
+```
+
+#### Option 2: Via winget
 ```powershell
 winget install Google.CloudSDK --accept-package-agreements --accept-source-agreements
 ```
+
 
 ---
 
