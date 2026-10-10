@@ -86,7 +86,7 @@ Evaluating all 2,783 multi-point RV orbits reveals that published orbits frequen
 
 ---
 
-## 4. Pillar 3: Latent Dynamical Manifolds & Hyper-Velocity Runaways
+## 4. Pillar 3: Latent Dynamical Manifolds & Galactic Halo Kinematic Outliers
 
 ### 4.1 5D Embedding & Robust Covariance Projection
 We embed each binary system into a 5-dimensional feature space spanning both orbital mechanics and galactic kinematics:
@@ -102,14 +102,22 @@ Using `RobustScaler` and Principal Component Analysis (`PCA`), the 5D space coll
 - **PC2 (14.9% variance)**: Tightness / Gravitational Binding Energy Axis ($\log P \leftrightarrow \log K_1$).
 - **PC3 (10.0% variance)**: Geometric Shape / Eccentricity Axis.
 
-### 4.2 Discovery: Hyper-Velocity Runaway Binary Outliers
-Computing the Euclidean norm in latent space ($\|\mathbf{z}\|_2$) reveals the most extreme physical anomalies in the galaxy:
+### 4.2 Discovery: Genuine Galactic Halo Kinematic Outliers vs. Astrometric Artifacts
 
-| System (`sn`) | Orbit (`on`) | Period (d) | $e$ | $K_1$ (km/s) | Tangential Velocity $v_{\text{tan}}$ | Manifold Outlier Norm | Nature of Discovery |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **SN 71** | 1 | **3.89** | **0.00** | **299.5** | **1,999.2 km/s** | **61.07** | **Hyper-Velocity Runaway Binary**: Massive tight binary traversing the galactic halo at escape velocity ($>1900\text{ km/s}$). Ejection from Galactic Center supermassive black hole (Hills mechanism). |
-| **SN 645** | 1, 2, 3 | **4.83** | **0.00** | **213.0** | **658.9 km/s** | **19.32** | Extreme halo kinematic runaway maintaining a circularized 4.8d orbit. |
-| **SN 3467** | 1 | **1,416.0** | **0.12** | **4.8** | **581.4 km/s** | **16.84** | High-velocity wide halo system. |
+Applying the **Pourbaix Astrometric Filter** ($\varpi / \sigma_\varpi \ge 5.0$) ensures that distance estimates and space velocities are not skewed by inverting noisy, sub-threshold parallaxes:
+
+| System (`sn`) | Identification | Orbit (`on`) | Period (d) | $e$ | $K_1$ (km/s) | Tangential Velocity $v_{\text{tan}}$ | Manifold Outlier Norm | Nature of System |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **SN 3467** | **HIP 74491** | 1 | **1,416.0** | **0.12** | **4.8** | **581.4 km/s** | **17.13** | **Extreme Halo Kinematic Binary**: High-velocity Galactic halo system cruising at the Milky Way escape boundary. |
+| **SN 2195** | **Gaia DR3** | 1 | **1,977.0** | **0.16** | **5.9** | **511.5 km/s** | **14.88** | Wide, high-velocity halo binary. |
+| **SN 2289** | **Gaia DR3** | 1 | **1,362.6** | **0.20** | **10.8** | **499.6 km/s** | **14.49** | High-velocity Galactic halo eccentric binary. |
+| **SN 3460** | **HIP 5445** | 1 | **1,641.0** | **0.35** | **9.1** | **474.3 km/s** | **13.68** | Fast halo system with moderate eccentricity. |
+| **SN 3465** | **HIP 71087** | 1 | **476.0** | **0.02** | **8.9** | **466.5 km/s** | **13.43** | Circularized intermediate-period runaway candidate. |
+
+> [!IMPORTANT] The Pourbaix Astrometric Filter (Why Parallax Quality Gating is Required)
+> Inverting trigonometric parallaxes ($d = 1/\varpi$) without strict quality gating ($\varpi / \sigma_\varpi \ge 5.0$) is mathematically hazardous. When applied to extragalactic objects or faint sources with near-zero, noise-dominated parallaxes ($\varpi \approx 0$), naive inversion blows up distance estimates toward infinity. Multiplying this inflated distance by real proper motion produces spurious space velocities exceeding thousands of kilometers per second.
+> 
+> Enforcing $(\varpi / \sigma_\varpi) \ge 5.0$ guarantees that only robust, physically grounded Galactic kinematics enter the manifold projection.
 
 ---
 
@@ -129,4 +137,4 @@ Execution runs across the full database in `< 1.2s` and outputs all candidate ta
 
 1. **Information Geometry metric $d_{\text{Fisher}}$** exposes 89 hidden Kozai-Lidov multiple candidates that violate classical tidal circularization.
 2. **Shannon Entropy metric $H_{\text{phase}}$** debunks seemingly well-sampled orbits (e.g., SN 815 with 2,650 points) by proving that 85% of their phase space remains unobserved.
-3. **Latent Manifold Projection** isolates **SN 71** as a rare hyper-velocity runaway binary cruising at nearly 2,000 km/s through the Milky Way.
+3. **Latent Manifold Projection with Astrometric Quality Gating** isolates genuine Galactic halo runaways (such as **SN 3467 / HIP 74491** at $v_{\text{tan}} \approx 581.4\text{ km/s}$) by strictly pruning spurious sub-threshold parallax artifacts.

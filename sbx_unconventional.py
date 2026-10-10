@@ -157,7 +157,13 @@ def compute_phase_shannon_entropy(conn: sqlite3.Connection, min_rvs: int = 20) -
 # CONCEPT 3: Latent Manifold Projection & Topological Clustering
 # -----------------------------------------------------------------------------
 def discover_latent_dynamical_manifolds(conn: sqlite3.Connection) -> pd.DataFrame:
-    """Embeds spectroscopic binaries into a 3D Latent PCA space across kinematics and geometry."""
+    """Embeds spectroscopic binaries into a 3D Latent PCA space across kinematics and geometry.
+    
+    NOTE ON ASTROMETRIC INTEGRITY (The Pourbaix Filter):
+    Parallax measurements must satisfy (parallax / parallax_error) >= 5.0.
+    Inverting noisy, near-zero parallaxes (e.g. extragalactic binaries like SMC X-1, sn=71)
+    artificially inflates distance and generates spurious 'hyper-velocity' velocities > 1,000 km/s.
+    """
     query = """
     SELECT 
         o.sn,
@@ -168,12 +174,14 @@ def discover_latent_dynamical_manifolds(conn: sqlite3.Connection) -> pd.DataFram
         o.systemic_velocity,
         s.mag1,
         s.parallax,
+        s.parallax_error,
         s.pmra,
         s.pmdec
     FROM orbits o
     JOIN systems s ON o.sn = s.sn
     WHERE o.period > 0 AND o.eccentricity >= 0 AND o.K1 > 0
-      AND s.parallax > 0 AND s.mag1 IS NOT NULL
+      AND s.parallax > 0 AND s.parallax_error > 0 AND (s.parallax / s.parallax_error) >= 5.0
+      AND s.mag1 IS NOT NULL AND s.pmra IS NOT NULL AND s.pmdec IS NOT NULL
     """
     df = pd.read_sql_query(query, conn)
     
