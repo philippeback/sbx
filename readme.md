@@ -6,6 +6,17 @@ The output is exported to column-optimized Apache Parquet files (and optionally 
 
 ---
 
+## 🌌 Interactive 3D Galactic Orrery
+
+Explore the entire spectroscopic binary catalogue in an interactive 3D WebGL Galactic Orrery with true space kinematics, in-situ animated 2-body Keplerian orbits, and 5 curated experience tiers:
+
+👉 **Live Interactive Visualizer: [https://philippeback.github.io/sbx/](https://philippeback.github.io/sbx/)**
+
+- Full methodology and physics: [`doc/visualization.md`](doc/visualization.md)
+- Generator script: [`cosmic_orrery.py`](cosmic_orrery.py)
+
+---
+
 ## Tables Extracted
 
 | Table | Description |
