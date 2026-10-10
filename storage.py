@@ -45,7 +45,15 @@ class StorageManager:
         if self.backend == "gcs":
             if gcs_storage is None:
                 raise ImportError("google-cloud-storage is required for GCS backend. Run: uv add google-cloud-storage")
-            self.gcs_client = gcs_storage.Client()
+            try:
+                self.gcs_client = gcs_storage.Client()
+            except Exception:
+                # Fallback to gcloud access token if ADC is not explicitly configured
+                import subprocess
+                from google.oauth2.credentials import Credentials
+                token = subprocess.check_output(["gcloud", "auth", "print-access-token"], text=True, shell=True).strip()
+                creds = Credentials(token)
+                self.gcs_client = gcs_storage.Client(credentials=creds, project=os.getenv("CLOUDSDK_CORE_PROJECT", "hos-infra"))
             self.gcs_bucket = self.gcs_client.bucket(self.bucket_name)
 
     def generate_manifest(
