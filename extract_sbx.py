@@ -1,7 +1,11 @@
+import io
+import json
 from pathlib import Path
-
 import pandas as pd
 import pyvo as vo
+import requests
+
+from storage import StorageManager, compute_sha256
 
 # TAP Endpoint
 TAP_URL = "https://astro.ulb.ac.be:443/sbx/tap"
@@ -11,8 +15,8 @@ TABLES = ["systems", "orbits", "velocities", "alias", "configurations", "duplica
 output_dir = Path("./sbx_dump")
 output_dir.mkdir(exist_ok=True)
 
-import io
-import requests
+storage_mgr = StorageManager()
+manifest_tables = {}
 
 for table_name in TABLES:
     print(f"Extracting {table_name}...")
@@ -34,7 +38,25 @@ for table_name in TABLES:
             df = pd.read_csv(io.StringIO(resp.text))
         
         # Save locally as Parquet
-        df.to_parquet(output_dir / f"{table_name}.parquet", index=False)
+        target_file = output_dir / f"{table_name}.parquet"
+        df.to_parquet(target_file, index=False)
         print(f"Saved {table_name}: {len(df)} rows.")
+
+        manifest_tables[table_name] = {
+            "rows": len(df),
+            "size_bytes": target_file.stat().st_size,
+            "sha256": compute_sha256(target_file),
+        }
     except Exception as e:
-        print(f"Failed to extract {table_name}: {e}")
+        print(f"Failed to extract {table_name}: {e}")
+
+# Generate and write local manifest
+manifest = storage_mgr.generate_manifest(files_info=manifest_tables, endpoint=TAP_URL)
+with open(output_dir / "manifest.json", "w", encoding="utf-8") as f:
+    json.dump(manifest, f, indent=2)
+print("Manifest written to sbx_dump/manifest.json")
+
+# Cloud sync if enabled (SBX_STORAGE_BACKEND=gcs)
+if storage_mgr.backend == "gcs":
+    print("Initiating cloud storage upload according to STORAGE_SPEC...")
+    storage_mgr.sync_to_cloud(local_dir=output_dir, manifest=manifest)
