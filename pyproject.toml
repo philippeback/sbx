@@ -10,6 +10,7 @@ dependencies = [
     "pyarrow>=15.0.0",
     "pytest>=9.1.1",
     "pyvo>=1.6.0",
+    "scikit-learn>=1.9.1",
 ]
 
 [build-system]
